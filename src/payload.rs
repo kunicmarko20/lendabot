@@ -8,6 +8,7 @@ lazy_static! {
 pub struct Payload {
     comment: Comment,
     repository: Repository,
+    issue: Issue,
 }
 
 impl Payload {
@@ -15,9 +16,12 @@ impl Payload {
         REGEX.is_match(&self.comment.html_url)
     }
 
-    pub fn repository_full_name(&self) -> &String
-    {
+    pub fn repository_full_name(&self) -> &String {
         &self.repository.full_name
+    }
+
+    pub fn issue_number(&self) -> &u64 {
+        &self.issue.number
     }
 
     pub fn comment_body(&self) -> &String
@@ -35,6 +39,11 @@ struct Comment {
 #[derive(Deserialize, Debug)]
 struct Repository {
     full_name: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct Issue {
+    number: u64,
 }
 
 #[cfg(test)]

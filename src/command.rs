@@ -8,6 +8,7 @@ lazy_static! {
 pub enum Command {
     Hotfix,
     Release,
+    Ping,
     Noop,
 }
 
@@ -16,6 +17,7 @@ impl From<&str> for Command {
         match string {
             "!hotfix" => Command::Hotfix,
             "!release" => Command::Release,
+            "!ping" => Command::Ping,
             _ => Command::Noop,
         }
     }
@@ -26,6 +28,7 @@ impl Command {
         match self {
             Command::Hotfix => self.execute_hotfix(&payload),
             Command::Release => self.execute_release(&payload),
+            Command::Ping => self.execute_ping(&payload),
             Command::Noop => {},
         }
     }
@@ -56,6 +59,18 @@ impl Command {
 
         GITHUB_CLIENT.create_pull_request(
             payload.repository_full_name(),
+            body.to_string()
+        ).unwrap();
+    }
+
+    fn execute_ping(&self, payload: &Payload) {
+        let body = json!({
+            "body": "pong"
+        });
+
+        GITHUB_CLIENT.create_comment(
+            payload.repository_full_name(),
+            payload.issue_number(),
             body.to_string()
         ).unwrap();
     }
