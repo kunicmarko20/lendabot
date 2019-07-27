@@ -1,17 +1,18 @@
 use regex::Regex;
+use super::parts::{Comment, Repository, Issue};
 
 lazy_static! {
     static ref REGEX: Regex = Regex::new(r"https://github.com/.+/.+/pull/.+").unwrap();
 }
 
 #[derive(Deserialize, Debug)]
-pub struct IssueComment {
+pub struct IssueCommentEventPayload {
     comment: Comment,
     repository: Repository,
     issue: Issue,
 }
 
-impl IssueComment {
+impl IssueCommentEventPayload {
     pub fn is_pull_request(&self) -> bool {
         REGEX.is_match(&self.issue.html_url)
     }
@@ -30,25 +31,9 @@ impl IssueComment {
     }
 }
 
-#[derive(Deserialize, Debug)]
-struct Comment {
-    body: String,
-}
-
-#[derive(Deserialize, Debug)]
-struct Repository {
-    full_name: String,
-}
-
-#[derive(Deserialize, Debug)]
-struct Issue {
-    number: u64,
-    html_url: String,
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::payload::REGEX;
+    use super::REGEX;
 
     #[test]
     fn it_will_match_regex() {

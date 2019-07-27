@@ -1,10 +1,9 @@
 use super::GITHUB_CLIENT;
-use crate::github::IssueComment;
 
-pub(super) struct Hotfix;
+pub struct Hotfix;
 
 impl Hotfix {
-    pub fn execute(issue_comment: &IssueComment) {
+    pub fn execute(repository_full_name: &String) {
         let body = json!({
             "title": "🤖 Hotfix back-merge",
             "head": "master",
@@ -14,7 +13,7 @@ impl Hotfix {
         });
 
         GITHUB_CLIENT.create_pull_request(
-            issue_comment.repository_full_name(),
+            repository_full_name,
             body.to_string()
         ).unwrap();
     }

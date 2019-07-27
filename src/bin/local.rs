@@ -2,7 +2,8 @@ use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::env;
 use lendabot::Command;
-use lendabot::github::IssueComment;
+use lendabot::github::payload::{IssueCommentEventPayload, PullRequestEventPayload};
+use lendabot::command::Hotfix;
 
 fn main() {
     let address = env::var("APP_ADDRESS").expect("APP_ADDRESS not set.");
@@ -16,25 +17,21 @@ fn main() {
 }
 
 fn handle_connection(stream: TcpStream) {
-    let body = get_request_body(&stream);
-    let issue_comment: IssueComment = serde_json::from_str(body.trim()).unwrap();
+    let request = request(&stream);
 
-    if issue_comment.is_pull_request() {
-        let command: Command = issue_comment.comment_body().as_str().into();
-        command.execute(&issue_comment);
-    }
+    request.0.execute(request.1);
 
     ok(stream)
 }
 
-fn get_request_body(mut stream: &TcpStream) -> String {
+fn request(mut stream: &TcpStream) -> (Event, String) {
     let mut buffer = [0; 65536];
 
     let number_of_characters = stream.read(&mut buffer).unwrap();
 
     let raw_body = String::from_utf8_lossy(&buffer[0..number_of_characters]);
 
-    raw_body.lines().skip(10).collect()
+    (raw_body.lines().nth(4).unwrap().trim().into(), raw_body.lines().skip(9).collect())
 }
 
 fn ok(mut stream: TcpStream) {
@@ -42,4 +39,48 @@ fn ok(mut stream: TcpStream) {
 
     stream.write(response.as_bytes()).unwrap();
     stream.flush().unwrap();
+}
+
+#[derive(Debug)]
+enum Event {
+    IssueComment,
+    PullRequest,
+    Noop,
+}
+
+impl From<&str> for Event {
+    fn from(string: &str) -> Self {
+        match string {
+            "X-GitHub-Event: issue_comment" => Event::IssueComment,
+            "X-GitHub-Event: pull_request" => Event::PullRequest,
+            _ => Event::Noop,
+        }
+    }
+}
+
+impl Event {
+    pub fn execute(&self, request: String) {
+        match self {
+            Event::IssueComment => self.execute_issue_comment(request),
+            Event::PullRequest => self.execute_pull_request(request),
+            Event::Noop => {},
+        }
+    }
+
+    fn execute_issue_comment(&self, request: String) {
+        let issue_comment_payload: IssueCommentEventPayload = serde_json::from_str(request.trim()).unwrap();
+
+        if issue_comment_payload.is_pull_request() {
+            let command: Command = issue_comment_payload.comment_body().as_str().into();
+            command.execute(&issue_comment_payload);
+        }
+    }
+
+    fn execute_pull_request(&self, request: String) {
+        let pull_request_payload: PullRequestEventPayload = serde_json::from_str(request.trim()).unwrap();
+
+        if pull_request_payload.is_merged() && pull_request_payload.is_hotfix() {
+            Hotfix::execute(pull_request_payload.repository_full_name());
+        }
+    }
 }

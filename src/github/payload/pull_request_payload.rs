@@ -1,10 +1,12 @@
+use super::parts::{Base, Head};
+
 #[derive(Deserialize, Debug)]
-pub struct PullRequest {
+pub struct PullRequestPayload {
     base: Base,
     head: Head,
 }
 
-impl PullRequest {
+impl PullRequestPayload {
     pub fn is_release(&self) -> bool {
         &self.base.branch == "master" && &self.head.branch == "development"
     }
@@ -16,16 +18,4 @@ impl PullRequest {
     pub fn is_hotfix(&self) -> bool {
         &self.base.branch == "master" && self.head.branch.starts_with("hotfix")
     }
-}
-
-#[derive(Deserialize, Debug)]
-struct Base {
-    #[serde(rename = "ref")]
-    branch: String,
-}
-
-#[derive(Deserialize, Debug)]
-struct Head {
-    #[serde(rename = "ref")]
-    branch: String,
 }

@@ -3,8 +3,10 @@ mod merge;
 mod ping;
 mod release;
 
-use crate::github::{IssueComment, GithubClient};
-use self::hotfix::Hotfix;
+pub use self::hotfix::Hotfix;
+
+use crate::github::GithubClient;
+use crate::github::payload::IssueCommentEventPayload;
 use self::merge::Merge;
 use self::ping::Ping;
 use self::release::Release;
@@ -35,12 +37,12 @@ impl From<&str> for Command {
 }
 
 impl Command {
-    pub fn execute(&self, issue_comment: &IssueComment) {
+    pub fn execute(&self, issue_comment_payload: &IssueCommentEventPayload) {
         match self {
-            Command::Hotfix => Hotfix::execute(&issue_comment),
-            Command::Release => Release::execute(&issue_comment),
-            Command::Ping => Ping::execute(&issue_comment),
-            Command::Merge => Merge::execute(&issue_comment),
+            Command::Hotfix => Hotfix::execute(&issue_comment_payload.repository_full_name()),
+            Command::Release => Release::execute(&issue_comment_payload),
+            Command::Ping => Ping::execute(&issue_comment_payload),
+            Command::Merge => Merge::execute(&issue_comment_payload),
             Command::Noop => {},
         }
     }

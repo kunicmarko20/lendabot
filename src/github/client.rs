@@ -1,6 +1,6 @@
 use reqwest::{Response, Client, header::{AUTHORIZATION, HeaderValue, HeaderMap}};
 use std::env;
-use super::PullRequest;
+use super::payload::PullRequestPayload;
 
 type Result = reqwest::Result<Response>;
 
@@ -47,7 +47,7 @@ impl GithubClient {
             .send()
     }
 
-    pub fn pull_request_info(&self, repository_name: &String, pull_request_number: &u64) -> PullRequest {
+    pub fn pull_request_info(&self, repository_name: &String, pull_request_number: &u64) -> PullRequestPayload {
          self.client
             .get(&format!("https://api.github.com/repos/{}/pulls/{}", repository_name, pull_request_number))
             .send()
