@@ -1,7 +1,8 @@
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::env;
-use lendabot::{Payload, Command};
+use lendabot::Command;
+use lendabot::github::IssueComment;
 
 fn main() {
     let address = env::var("APP_ADDRESS").expect("APP_ADDRESS not set.");
@@ -16,18 +17,18 @@ fn main() {
 
 fn handle_connection(stream: TcpStream) {
     let body = get_request_body(&stream);
-    let payload: Payload = serde_json::from_str(body.trim()).unwrap();
+    let issue_comment: IssueComment = serde_json::from_str(body.trim()).unwrap();
 
-    if payload.is_pull_request() {
-        let command: Command = payload.comment_body().as_str().into();
-        command.execute(&payload);
+    if issue_comment.is_pull_request() {
+        let command: Command = issue_comment.comment_body().as_str().into();
+        command.execute(&issue_comment);
     }
 
     ok(stream)
 }
 
 fn get_request_body(mut stream: &TcpStream) -> String {
-    let mut buffer = [0; 16384];
+    let mut buffer = [0; 65536];
 
     let number_of_characters = stream.read(&mut buffer).unwrap();
 

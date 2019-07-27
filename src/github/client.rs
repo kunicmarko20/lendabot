@@ -1,5 +1,6 @@
 use reqwest::{Response, Client, header::{AUTHORIZATION, HeaderValue, HeaderMap}};
 use std::env;
+use super::PullRequest;
 
 type Result = reqwest::Result<Response>;
 
@@ -8,7 +9,7 @@ lazy_static! {
     static ref AUTHORIZATION_HEADER_VALUE: String = "token ".to_string() + &TOKEN;
 }
 
-pub(crate) struct GithubClient {
+pub struct GithubClient {
     client: Client,
 }
 
@@ -38,4 +39,21 @@ impl GithubClient {
             .body(body)
             .send()
     }
+
+    pub fn merge_pull_request(&self, repository_name: &String, pull_request_number: &u64, body: String) -> Result {
+        self.client
+            .put(&format!("https://api.github.com/repos/{}/pulls/{}/merge", repository_name, pull_request_number))
+            .body(body)
+            .send()
+    }
+
+    pub fn pull_request_info(&self, repository_name: &String, pull_request_number: &u64) -> PullRequest {
+         self.client
+            .get(&format!("https://api.github.com/repos/{}/pulls/{}", repository_name, pull_request_number))
+            .send()
+            .unwrap()
+            .json()
+            .unwrap()
+    }
 }
+

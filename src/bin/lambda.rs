@@ -1,7 +1,8 @@
 use std::error::Error;
 use lambda_runtime::{error::HandlerError, Context};
 use lambda_http::{lambda, Request, RequestExt, Response, Body};
-use lendabot::{Command, Payload};
+use lendabot::Command;
+use lendabot::github::IssueComment;
 
 fn main() -> Result<(), Box<dyn Error>> {
     lambda!(run);
@@ -9,11 +10,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 pub fn run(request: Request, _: Context) -> Result<Response<Body>, HandlerError> {
-    let payload = request.payload::<Payload>().unwrap().unwrap();
+    let issue_comment = request.payload::<IssueComment>().unwrap().unwrap();
 
-    if payload.is_pull_request() {
-        let command: Command = payload.comment_body().as_str().into();
-        command.execute(&payload);
+    if issue_comment.is_pull_request() {
+        let command: Command = issue_comment.comment_body().as_str().into();
+        command.execute(&issue_comment);
     }
 
     Ok(Response::builder()
