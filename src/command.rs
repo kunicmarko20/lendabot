@@ -85,15 +85,13 @@ impl Command {
             payload.issue_number(),
         );
 
-        let base_branch = pull_request.base_branch().as_str();
-        let head_branch = pull_request.head_branch().as_str();
         let mut merge_method = MergeMethod::Squash;
 
-        if base_branch == "master" || head_branch == "master" {
+        if pull_request.is_release() || pull_request.is_back_merge(){
             merge_method = MergeMethod::Merge;
         }
 
-        if base_branch == "master" && head_branch.starts_with("hotfix") {
+        if pull_request.is_hotfix() {
             merge_method = MergeMethod::Squash;
         }
 

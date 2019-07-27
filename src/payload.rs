@@ -53,12 +53,16 @@ pub struct PullRequest {
 }
 
 impl PullRequest {
-    pub fn base_branch(&self) -> &String {
-        &self.base.branch
+    pub fn is_release(&self) -> bool {
+        &self.base.branch == "master" && &self.head.branch == "development"
     }
 
-    pub fn head_branch(&self) -> &String {
-        &self.head.branch
+    pub fn is_back_merge(&self) -> bool {
+        &self.base.branch == "development" && &self.head.branch == "master"
+    }
+
+    pub fn is_hotfix(&self) -> bool {
+        &self.base.branch == "master" && self.head.branch.starts_with("hotfix")
     }
 }
 
