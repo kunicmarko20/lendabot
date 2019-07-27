@@ -1,6 +1,6 @@
 use reqwest::{Response, Client, header::{AUTHORIZATION, HeaderValue, HeaderMap}};
 use std::env;
-use crate::payload::PullRequest;
+use super::PullRequest;
 
 type Result = reqwest::Result<Response>;
 
@@ -9,7 +9,7 @@ lazy_static! {
     static ref AUTHORIZATION_HEADER_VALUE: String = "token ".to_string() + &TOKEN;
 }
 
-pub(crate) struct GithubClient {
+pub struct GithubClient {
     client: Client,
 }
 
@@ -57,17 +57,3 @@ impl GithubClient {
     }
 }
 
-#[derive(Debug)]
-pub enum MergeMethod {
-    Squash,
-    Merge,
-}
-
-impl From<MergeMethod> for &'static str {
-    fn from(merge_method: MergeMethod) -> &'static str {
-        match merge_method {
-            MergeMethod::Squash => "squash",
-            MergeMethod::Merge => "merge",
-        }
-    }
-}

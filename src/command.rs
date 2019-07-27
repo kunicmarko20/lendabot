@@ -1,5 +1,4 @@
-use crate::Payload;
-use crate::github_client::{GithubClient, MergeMethod};
+use crate::github::{IssueComment, GithubClient, MergeMethod};
 
 lazy_static! {
     static ref GITHUB_CLIENT: GithubClient = GithubClient::new();
@@ -27,17 +26,17 @@ impl From<&str> for Command {
 }
 
 impl Command {
-    pub fn execute(&self, payload: &Payload) {
+    pub fn execute(&self, issue_comment: &IssueComment) {
         match self {
-            Command::Hotfix => self.execute_hotfix(&payload),
-            Command::Release => self.execute_release(&payload),
-            Command::Ping => self.execute_ping(&payload),
-            Command::Merge => self.execute_merge(&payload),
+            Command::Hotfix => self.execute_hotfix(&issue_comment),
+            Command::Release => self.execute_release(&issue_comment),
+            Command::Ping => self.execute_ping(&issue_comment),
+            Command::Merge => self.execute_merge(&issue_comment),
             Command::Noop => {},
         }
     }
 
-    fn execute_hotfix(&self, payload: &Payload) {
+    fn execute_hotfix(&self, issue_comment: &IssueComment) {
         let body = json!({
             "title": "🤖 Hotfix back-merge",
             "head": "master",
@@ -47,12 +46,12 @@ impl Command {
         });
 
         GITHUB_CLIENT.create_pull_request(
-            payload.repository_full_name(),
+            issue_comment.repository_full_name(),
             body.to_string()
         ).unwrap();
     }
 
-    fn execute_release(&self, payload: &Payload) {
+    fn execute_release(&self, issue_comment: &IssueComment) {
         let body = json!({
             "title": "🤖 Release",
             "head": "development",
@@ -62,27 +61,27 @@ impl Command {
         });
 
         GITHUB_CLIENT.create_pull_request(
-            payload.repository_full_name(),
+            issue_comment.repository_full_name(),
             body.to_string()
         ).unwrap();
     }
 
-    fn execute_ping(&self, payload: &Payload) {
+    fn execute_ping(&self, issue_comment: &IssueComment) {
         let body = json!({
             "body": "pong"
         });
 
         GITHUB_CLIENT.create_comment(
-            payload.repository_full_name(),
-            payload.issue_number(),
+            issue_comment.repository_full_name(),
+            issue_comment.issue_number(),
             body.to_string()
         ).unwrap();
     }
 
-    fn execute_merge(&self, payload: &Payload) {
+    fn execute_merge(&self, issue_comment: &IssueComment) {
         let pull_request = GITHUB_CLIENT.pull_request_info(
-            payload.repository_full_name(),
-            payload.issue_number(),
+            issue_comment.repository_full_name(),
+            issue_comment.issue_number(),
         );
 
         let mut merge_method = MergeMethod::Squash;
@@ -100,8 +99,8 @@ impl Command {
         });
 
         GITHUB_CLIENT.merge_pull_request(
-            payload.repository_full_name(),
-            payload.issue_number(),
+            issue_comment.repository_full_name(),
+            issue_comment.issue_number(),
             body.to_string(),
         ).unwrap();
     }

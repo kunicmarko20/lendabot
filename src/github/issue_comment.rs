@@ -5,13 +5,13 @@ lazy_static! {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Payload {
+pub struct IssueComment {
     comment: Comment,
     repository: Repository,
     issue: Issue,
 }
 
-impl Payload {
+impl IssueComment {
     pub fn is_pull_request(&self) -> bool {
         REGEX.is_match(&self.issue.html_url)
     }
@@ -45,39 +45,6 @@ struct Issue {
     number: u64,
     html_url: String,
 }
-
-#[derive(Deserialize, Debug)]
-pub struct PullRequest {
-    base: Base,
-    head: Head,
-}
-
-impl PullRequest {
-    pub fn is_release(&self) -> bool {
-        &self.base.branch == "master" && &self.head.branch == "development"
-    }
-
-    pub fn is_back_merge(&self) -> bool {
-        &self.base.branch == "development" && &self.head.branch == "master"
-    }
-
-    pub fn is_hotfix(&self) -> bool {
-        &self.base.branch == "master" && self.head.branch.starts_with("hotfix")
-    }
-}
-
-#[derive(Deserialize, Debug)]
-struct Base {
-    #[serde(rename = "ref")]
-    branch: String,
-}
-
-#[derive(Deserialize, Debug)]
-struct Head {
-    #[serde(rename = "ref")]
-    branch: String,
-}
-
 
 #[cfg(test)]
 mod tests {
