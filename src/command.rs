@@ -1,14 +1,16 @@
 use crate::Payload;
-use crate::github_client::GithubClient;
+use crate::github_client::{GithubClient, MergeMethod};
 
 lazy_static! {
     static ref GITHUB_CLIENT: GithubClient = GithubClient::new();
 }
 
+#[derive(Debug)]
 pub enum Command {
     Hotfix,
     Release,
     Ping,
+    Merge,
     Noop,
 }
 
@@ -17,6 +19,7 @@ impl From<&str> for Command {
         match string {
             "!hotfix" => Command::Hotfix,
             "!release" => Command::Release,
+            "!merge" => Command::Merge,
             "!ping" => Command::Ping,
             _ => Command::Noop,
         }
@@ -29,6 +32,7 @@ impl Command {
             Command::Hotfix => self.execute_hotfix(&payload),
             Command::Release => self.execute_release(&payload),
             Command::Ping => self.execute_ping(&payload),
+            Command::Merge => self.execute_merge(&payload),
             Command::Noop => {},
         }
     }
@@ -72,6 +76,35 @@ impl Command {
             payload.repository_full_name(),
             payload.issue_number(),
             body.to_string()
+        ).unwrap();
+    }
+
+    fn execute_merge(&self, payload: &Payload) {
+        let pull_request = GITHUB_CLIENT.pull_request_info(
+            payload.repository_full_name(),
+            payload.issue_number(),
+        );
+
+        let base_branch = pull_request.base_branch().as_str();
+        let head_branch = pull_request.head_branch().as_str();
+        let mut merge_method = MergeMethod::Squash;
+
+        if base_branch == "master" || head_branch == "master" {
+            merge_method = MergeMethod::Merge;
+        }
+
+        if base_branch == "master" && head_branch.starts_with("hotfix") {
+            merge_method = MergeMethod::Squash;
+        }
+
+        let body = json!({
+            "merge_method": Into::<&str>::into(merge_method)
+        });
+
+        GITHUB_CLIENT.merge_pull_request(
+            payload.repository_full_name(),
+            payload.issue_number(),
+            body.to_string(),
         ).unwrap();
     }
 }

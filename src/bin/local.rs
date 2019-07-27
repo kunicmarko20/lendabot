@@ -27,7 +27,7 @@ fn handle_connection(stream: TcpStream) {
 }
 
 fn get_request_body(mut stream: &TcpStream) -> String {
-    let mut buffer = [0; 16384];
+    let mut buffer = [0; 65536];
 
     let number_of_characters = stream.read(&mut buffer).unwrap();
 

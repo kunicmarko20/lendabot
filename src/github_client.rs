@@ -1,5 +1,6 @@
 use reqwest::{Response, Client, header::{AUTHORIZATION, HeaderValue, HeaderMap}};
 use std::env;
+use crate::payload::PullRequest;
 
 type Result = reqwest::Result<Response>;
 
@@ -37,5 +38,36 @@ impl GithubClient {
             .post(&format!("https://api.github.com/repos/{}/issues/{}/comments", repository_name, issue_number))
             .body(body)
             .send()
+    }
+
+    pub fn merge_pull_request(&self, repository_name: &String, pull_request_number: &u64, body: String) -> Result {
+        self.client
+            .put(&format!("https://api.github.com/repos/{}/pulls/{}/merge", repository_name, pull_request_number))
+            .body(body)
+            .send()
+    }
+
+    pub fn pull_request_info(&self, repository_name: &String, pull_request_number: &u64) -> PullRequest {
+         self.client
+            .get(&format!("https://api.github.com/repos/{}/pulls/{}", repository_name, pull_request_number))
+            .send()
+            .unwrap()
+            .json()
+            .unwrap()
+    }
+}
+
+#[derive(Debug)]
+pub enum MergeMethod {
+    Squash,
+    Merge,
+}
+
+impl From<MergeMethod> for &'static str {
+    fn from(merge_method: MergeMethod) -> &'static str {
+        match merge_method {
+            MergeMethod::Squash => "squash",
+            MergeMethod::Merge => "merge",
+        }
     }
 }

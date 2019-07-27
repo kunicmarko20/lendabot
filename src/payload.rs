@@ -1,7 +1,7 @@
 use regex::Regex;
 
 lazy_static! {
-    static ref REGEX: Regex = Regex::new(r"https://github.com/(\w+)/(\w+)/pull/(\d+)").unwrap();
+    static ref REGEX: Regex = Regex::new(r"https://github.com/.+/.+/pull/.+").unwrap();
 }
 
 #[derive(Deserialize, Debug)]
@@ -13,7 +13,7 @@ pub struct Payload {
 
 impl Payload {
     pub fn is_pull_request(&self) -> bool {
-        REGEX.is_match(&self.comment.html_url)
+        REGEX.is_match(&self.issue.html_url)
     }
 
     pub fn repository_full_name(&self) -> &String {
@@ -32,7 +32,6 @@ impl Payload {
 
 #[derive(Deserialize, Debug)]
 struct Comment {
-    html_url: String,
     body: String,
 }
 
@@ -44,15 +43,45 @@ struct Repository {
 #[derive(Deserialize, Debug)]
 struct Issue {
     number: u64,
+    html_url: String,
 }
+
+#[derive(Deserialize, Debug)]
+pub struct PullRequest {
+    base: Base,
+    head: Head,
+}
+
+impl PullRequest {
+    pub fn base_branch(&self) -> &String {
+        &self.base.branch
+    }
+
+    pub fn head_branch(&self) -> &String {
+        &self.head.branch
+    }
+}
+
+#[derive(Deserialize, Debug)]
+struct Base {
+    #[serde(rename = "ref")]
+    branch: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct Head {
+    #[serde(rename = "ref")]
+    branch: String,
+}
+
 
 #[cfg(test)]
 mod tests {
-    use crate::REGEX;
+    use crate::payload::REGEX;
 
     #[test]
     fn it_will_match_regex() {
-        assert!(REGEX.is_match("https://github.com/i_am_an_owner/this_is_repository/pull/3"));
+        assert!(REGEX.is_match("https://github.com/i_am_an_owner/this-is_repository/pull/3"));
         assert!(REGEX.is_match("https://github.com/aws/das/pull/3"));
     }
 
