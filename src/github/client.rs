@@ -1,6 +1,7 @@
 use reqwest::{Response, Client, header::{AUTHORIZATION, HeaderValue, HeaderMap}};
 use std::env;
 use super::payload::PullRequestPayload;
+use super::payload::PullRequestCommitPayload;
 
 type Result = reqwest::Result<Response>;
 
@@ -26,9 +27,19 @@ impl GithubClient {
         GithubClient{client}
     }
 
-    pub fn create_pull_request(&self, repository_name: &String, body: String) -> Result {
+    pub fn create_pull_request(&self, repository_name: &String, body: String) -> PullRequestPayload {
         self.client
             .post(&format!("https://api.github.com/repos/{}/pulls", repository_name))
+            .body(body)
+            .send()
+            .unwrap()
+            .json()
+            .unwrap()
+    }
+
+    pub fn update_pull_request(&self, repository_name: &String, pull_request_number: &u64, body: String) -> Result {
+        self.client
+            .patch(&format!("https://api.github.com/repos/{}/pulls/{}", repository_name, pull_request_number))
             .body(body)
             .send()
     }
@@ -50,6 +61,15 @@ impl GithubClient {
     pub fn pull_request_info(&self, repository_name: &String, pull_request_number: &u64) -> PullRequestPayload {
          self.client
             .get(&format!("https://api.github.com/repos/{}/pulls/{}", repository_name, pull_request_number))
+            .send()
+            .unwrap()
+            .json()
+            .unwrap()
+    }
+
+    pub fn pull_request_commits(&self, repository_name: &String, pull_request_number: &u64) -> Vec<PullRequestCommitPayload> {
+         self.client
+            .get(&format!("https://api.github.com/repos/{}/pulls/{}/commits", repository_name, pull_request_number))
             .send()
             .unwrap()
             .json()

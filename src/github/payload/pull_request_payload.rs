@@ -2,6 +2,7 @@ use super::parts::{Base, Head};
 
 #[derive(Deserialize, Debug)]
 pub struct PullRequestPayload {
+    number: u64,
     base: Base,
     head: Head,
 }
@@ -17,5 +18,9 @@ impl PullRequestPayload {
 
     pub fn is_hotfix(&self) -> bool {
         &self.base.branch == "master" && self.head.branch.starts_with("hotfix")
+    }
+
+    pub fn pull_request_number(&self) -> &u64 {
+        &self.number
     }
 }
