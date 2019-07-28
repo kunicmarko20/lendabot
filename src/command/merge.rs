@@ -11,20 +11,16 @@ impl Merge {
             issue_comment_payload.issue_number(),
         );
 
-        let mut merge_method = MergeMethod::Squash;
-
-        if pull_request.is_release() || pull_request.is_back_merge(){
-            merge_method = MergeMethod::Merge;
-        }
-
-        if pull_request.is_hotfix() {
-            merge_method = MergeMethod::Squash;
-        }
-
-        let body = json!({
+        let mut body = json!({
             "commit_title": issue_comment_payload.issue_title(),
-            "merge_method": Into::<&str>::into(merge_method),
+            "merge_method": Into::<&str>::into(MergeMethod::Squash),
         });
+
+        if pull_request.is_release() || pull_request.is_back_merge() {
+            body = json!({
+                "merge_method": Into::<&str>::into(MergeMethod::Merge),
+            });
+        }
 
         GITHUB_CLIENT.merge_pull_request(
             issue_comment_payload.repository_full_name(),
