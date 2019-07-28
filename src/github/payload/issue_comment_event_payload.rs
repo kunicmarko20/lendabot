@@ -25,6 +25,10 @@ impl IssueCommentEventPayload {
         &self.issue.number
     }
 
+    pub fn issue_title(&self) -> &String {
+        &self.issue.title
+    }
+
     pub fn comment_body(&self) -> &String
     {
         &self.comment.body

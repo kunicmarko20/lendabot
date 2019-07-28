@@ -22,7 +22,8 @@ impl Merge {
         }
 
         let body = json!({
-            "merge_method": Into::<&str>::into(merge_method)
+            "commit_title": issue_comment_payload.issue_title(),
+            "merge_method": Into::<&str>::into(merge_method),
         });
 
         GITHUB_CLIENT.merge_pull_request(
