@@ -9,7 +9,6 @@ impl Hotfix {
             "head": "master",
             "base": "development",
             "maintainer_can_modify": true,
-            "body": "Beep boop, your wish is my command."
         });
 
         GITHUB_CLIENT.create_pull_request(

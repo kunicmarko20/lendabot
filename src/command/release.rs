@@ -11,7 +11,6 @@ impl Release {
             "head": "development",
             "base": "master",
             "maintainer_can_modify": true,
-            "body": "Beep boop, your wish is my command."
         });
 
         let pull_request = GITHUB_CLIENT.create_pull_request(
