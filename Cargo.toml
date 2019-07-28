@@ -20,11 +20,11 @@ path = "src/lib.rs"
 
 [[bin]]
 name = "bootstrap"
-path = "src/bin/lambda.rs"
+path = "bin/lambda.rs"
 
 [[bin]]
 name = "local"
-path = "src/bin/local.rs"
+path = "bin/local.rs"
 
 [profile.release]
 opt-level = 'z'
