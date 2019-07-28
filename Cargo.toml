@@ -1,7 +1,7 @@
 [package]
-name = "aws-lambda-starter-rs"
+name = "lendabot"
 version = "0.1.0"
-authors = ["Your Name <your.name@email.com>"]
+authors = ["Marko Kunic <kunicmarko20@gmail.com>"]
 edition = "2018"
 
 [dependencies]
@@ -26,8 +26,8 @@ path = "src/bin/lambda.rs"
 name = "local"
 path = "src/bin/local.rs"
 
-#[profile.release]
-#opt-level = 'z'
-#lto = true
-#codegen-units = 1
-#panic = 'abort'
+[profile.release]
+opt-level = 'z'
+lto = true
+codegen-units = 1
+panic = 'abort'

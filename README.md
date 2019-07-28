@@ -1,5 +1,24 @@
-AWS Lambda Starter Kit for Rust
-===============================
+Lendabot
+========
 
-Enough to get you going if you are making a lambda in Rust.
- 
+Github bot that runs as AWS Lambda and will automate workflow.
+
+Commands
+========
+
+All commands mentioned here should be executed as a comment to a Pull Request.
+
+
+* `!ping` | `!p` - Check if Lendabot is alive.
+
+* `!merge` | `!m` - Merges current Pull Request. By default Lendabot will use `squash and merge`.
+If pull request is release (`development` into `master`) or a back-merge (`master` into `development`),
+Lendabot will use `merge commit`.
+
+* `!release` | `!r` - Creates a `development` into `master` Pull Request.
+
+* `!urelease` | `!ur` - Updates the release Pull Request title with new ticket names.
+Works only as a comment on a release Pull Request.
+
+* `!hotfix` | `!h` - Creates a `master` into `development` Pull Request. If Pull Request Event is enabled,
+Lendabot will create this Pull Request automatically.
