@@ -1,15 +1,12 @@
 use super::GITHUB_CLIENT;
-use crate::github::payload::IssueCommentEventPayload;
 use crate::github::MergeMethod;
 
 pub(super) struct Merge;
 
 impl Merge {
-    pub fn execute(issue_comment_payload: &IssueCommentEventPayload) {
-        let pull_request = GITHUB_CLIENT.pull_request_info(
-            issue_comment_payload.repository_full_name(),
-            *issue_comment_payload.issue_number(),
-        );
+    pub fn execute(repository_full_name: &str, pull_request_title: &str, pull_request_number: u64) {
+        let pull_request =
+            GITHUB_CLIENT.pull_request_info(repository_full_name, pull_request_number);
 
         let body = if pull_request.is_release() || pull_request.is_back_merge() {
             json!({
@@ -17,17 +14,13 @@ impl Merge {
             })
         } else {
             json!({
-                "commit_title": issue_comment_payload.issue_title(),
+                "commit_title": pull_request_title,
                 "merge_method": Into::<&str>::into(MergeMethod::Squash),
             })
         };
 
         let response = GITHUB_CLIENT
-            .merge_pull_request(
-                issue_comment_payload.repository_full_name(),
-                *issue_comment_payload.issue_number(),
-                body.to_string(),
-            )
+            .merge_pull_request(repository_full_name, pull_request_number, body.to_string())
             .unwrap();
 
         if response.status() == 405 {
@@ -36,11 +29,7 @@ impl Merge {
             });
 
             GITHUB_CLIENT
-                .create_comment(
-                    issue_comment_payload.repository_full_name(),
-                    *issue_comment_payload.issue_number(),
-                    body.to_string(),
-                )
+                .create_comment(repository_full_name, pull_request_number, body.to_string())
                 .unwrap();
         }
     }

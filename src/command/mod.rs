@@ -44,13 +44,20 @@ impl Command {
     pub fn execute(&self, issue_comment_payload: &IssueCommentEventPayload) {
         match self {
             Command::BackMerge => BackMerge::execute(&issue_comment_payload.repository_full_name()),
-            Command::Release => Release::execute(&issue_comment_payload),
+            Command::Release => Release::execute(&issue_comment_payload.repository_full_name()),
             Command::UpdateRelease => UpdateRelease::execute(
                 &issue_comment_payload.repository_full_name(),
                 *issue_comment_payload.issue_number(),
             ),
-            Command::Ping => Ping::execute(&issue_comment_payload),
-            Command::Merge => Merge::execute(&issue_comment_payload),
+            Command::Ping => Ping::execute(
+                &issue_comment_payload.repository_full_name(),
+                *issue_comment_payload.issue_number(),
+            ),
+            Command::Merge => Merge::execute(
+                &issue_comment_payload.repository_full_name(),
+                &issue_comment_payload.issue_title(),
+                *issue_comment_payload.issue_number(),
+            ),
             Command::Noop => {}
         }
     }

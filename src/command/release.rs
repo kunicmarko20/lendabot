@@ -1,11 +1,10 @@
 use super::UpdateRelease;
 use super::GITHUB_CLIENT;
-use crate::github::payload::IssueCommentEventPayload;
 
 pub(super) struct Release;
 
 impl Release {
-    pub fn execute(issue_comment_payload: &IssueCommentEventPayload) {
+    pub fn execute(repository_full_name: &str) {
         let body = json!({
             "title": "🤖 Release",
             "head": "development",
@@ -13,14 +12,9 @@ impl Release {
             "maintainer_can_modify": true,
         });
 
-        let pull_request = GITHUB_CLIENT.create_pull_request(
-            issue_comment_payload.repository_full_name(),
-            body.to_string(),
-        );
+        let pull_request =
+            GITHUB_CLIENT.create_pull_request(repository_full_name, body.to_string());
 
-        UpdateRelease::execute(
-            issue_comment_payload.repository_full_name(),
-            *pull_request.pull_request_number(),
-        );
+        UpdateRelease::execute(repository_full_name, *pull_request.pull_request_number());
     }
 }
