@@ -1,4 +1,4 @@
-use lendabot::command::Hotfix;
+use lendabot::command::BackMerge;
 use lendabot::github::payload::{IssueCommentEventPayload, PullRequestEventPayload};
 use lendabot::Command;
 use std::env;
@@ -85,7 +85,7 @@ impl Event {
             serde_json::from_str(request.trim()).unwrap();
 
         if pull_request_payload.is_merged() && pull_request_payload.is_hotfix() {
-            Hotfix::execute(pull_request_payload.repository_full_name());
+            BackMerge::execute(pull_request_payload.repository_full_name());
         }
     }
 }

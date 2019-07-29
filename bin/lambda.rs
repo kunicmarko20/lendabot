@@ -1,6 +1,6 @@
 use lambda_http::{lambda, Body, Request, RequestExt, Response};
 use lambda_runtime::{error::HandlerError, Context};
-use lendabot::command::Hotfix;
+use lendabot::command::BackMerge;
 use lendabot::github::payload::{IssueCommentEventPayload, PullRequestEventPayload};
 use lendabot::Command;
 use std::error::Error;
@@ -72,7 +72,7 @@ impl Event {
             .unwrap();
 
         if pull_request_payload.is_merged() && pull_request_payload.is_hotfix() {
-            Hotfix::execute(pull_request_payload.repository_full_name());
+            BackMerge::execute(pull_request_payload.repository_full_name());
         }
     }
 }

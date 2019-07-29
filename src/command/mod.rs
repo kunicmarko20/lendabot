@@ -1,10 +1,10 @@
-mod hotfix;
+mod back_merge;
 mod merge;
 mod ping;
 mod release;
 mod update_release;
 
-pub use self::hotfix::Hotfix;
+pub use self::back_merge::BackMerge;
 
 use self::merge::Merge;
 use self::ping::Ping;
@@ -19,7 +19,7 @@ lazy_static! {
 
 #[derive(Debug)]
 pub enum Command {
-    Hotfix,
+    BackMerge,
     Release,
     UpdateRelease,
     Ping,
@@ -30,9 +30,9 @@ pub enum Command {
 impl From<&str> for Command {
     fn from(string: &str) -> Self {
         match string {
-            "!hotfix" | "!h" => Command::Hotfix,
+            "!back-merge" | "!bm" => Command::BackMerge,
             "!release" | "!r" => Command::Release,
-            "!urelease" | "!ur" => Command::UpdateRelease,
+            "!update-release" | "!ur" => Command::UpdateRelease,
             "!merge" | "!m" => Command::Merge,
             "!ping" | "!p" => Command::Ping,
             _ => Command::Noop,
@@ -43,7 +43,7 @@ impl From<&str> for Command {
 impl Command {
     pub fn execute(&self, issue_comment_payload: &IssueCommentEventPayload) {
         match self {
-            Command::Hotfix => Hotfix::execute(&issue_comment_payload.repository_full_name()),
+            Command::BackMerge => BackMerge::execute(&issue_comment_payload.repository_full_name()),
             Command::Release => Release::execute(&issue_comment_payload),
             Command::UpdateRelease => UpdateRelease::execute(
                 &issue_comment_payload.repository_full_name(),

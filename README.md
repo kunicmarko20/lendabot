@@ -17,8 +17,8 @@ Lendabot will use `merge commit`.
 
 * `!release` | `!r` - Creates a `development` into `master` Pull Request.
 
-* `!urelease` | `!ur` - Updates the release Pull Request title with new ticket names.
+* `!update-release` | `!ur` - Updates the release Pull Request title with new ticket names.
 Works only as a comment on a release Pull Request.
 
-* `!hotfix` | `!h` - Creates a `master` into `development` Pull Request. If Pull Request Event is enabled,
+* `!back-merge` | `!bm` - Creates a `master` into `development` Pull Request. If Pull Request Event is enabled,
 Lendabot will create this Pull Request automatically.
