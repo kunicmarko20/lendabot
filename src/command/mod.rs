@@ -6,15 +6,15 @@ mod update_release;
 
 pub use self::hotfix::Hotfix;
 
-use crate::github::GithubClient;
-use crate::github::payload::IssueCommentEventPayload;
 use self::merge::Merge;
 use self::ping::Ping;
 use self::release::Release;
 use self::update_release::UpdateRelease;
+use crate::github::payload::IssueCommentEventPayload;
+use crate::github::GithubClient;
 
 lazy_static! {
-    static ref GITHUB_CLIENT: GithubClient = GithubClient::new();
+    static ref GITHUB_CLIENT: GithubClient = GithubClient::default();
 }
 
 #[derive(Debug)]
@@ -47,11 +47,11 @@ impl Command {
             Command::Release => Release::execute(&issue_comment_payload),
             Command::UpdateRelease => UpdateRelease::execute(
                 &issue_comment_payload.repository_full_name(),
-                &issue_comment_payload.issue_number()
+                *issue_comment_payload.issue_number(),
             ),
             Command::Ping => Ping::execute(&issue_comment_payload),
             Command::Merge => Merge::execute(&issue_comment_payload),
-            Command::Noop => {},
+            Command::Noop => {}
         }
     }
 }

@@ -8,7 +8,8 @@ pub struct PullRequestEventPayload {
 
 impl PullRequestEventPayload {
     pub fn is_hotfix(&self) -> bool {
-        &self.pull_request.base.branch == "master" && self.pull_request.head.branch.starts_with("hotfix")
+        &self.pull_request.base.branch == "master"
+            && self.pull_request.head.branch.starts_with("hotfix")
     }
 
     pub fn is_merged(&self) -> bool {

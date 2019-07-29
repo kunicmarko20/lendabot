@@ -1,9 +1,9 @@
-use std::error::Error;
+use lambda_http::{lambda, Body, Request, RequestExt, Response};
 use lambda_runtime::{error::HandlerError, Context};
-use lambda_http::{lambda, Request, RequestExt, Response, Body};
-use lendabot::Command;
-use lendabot::github::payload::{IssueCommentEventPayload, PullRequestEventPayload};
 use lendabot::command::Hotfix;
+use lendabot::github::payload::{IssueCommentEventPayload, PullRequestEventPayload};
+use lendabot::Command;
+use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
     lambda!(run);
@@ -11,7 +11,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 pub fn run(request: Request, _: Context) -> Result<Response<Body>, HandlerError> {
-    let event: Event = request.headers()
+    let event: Event = request
+        .headers()
         .get("X-GitHub-Event")
         .unwrap()
         .to_str()
@@ -48,12 +49,15 @@ impl Event {
         match self {
             Event::IssueComment => self.execute_issue_comment(request),
             Event::PullRequest => self.execute_pull_request(request),
-            Event::Noop => {},
+            Event::Noop => {}
         }
     }
 
     fn execute_issue_comment(&self, request: &Request) {
-        let issue_comment_payload = request.payload::<IssueCommentEventPayload>().unwrap().unwrap();
+        let issue_comment_payload = request
+            .payload::<IssueCommentEventPayload>()
+            .unwrap()
+            .unwrap();
 
         if issue_comment_payload.is_pull_request() {
             let command: Command = issue_comment_payload.comment_body().as_str().into();
@@ -62,7 +66,10 @@ impl Event {
     }
 
     fn execute_pull_request(&self, request: &Request) {
-        let pull_request_payload = request.payload::<PullRequestEventPayload>().unwrap().unwrap();
+        let pull_request_payload = request
+            .payload::<PullRequestEventPayload>()
+            .unwrap()
+            .unwrap();
 
         if pull_request_payload.is_merged() && pull_request_payload.is_hotfix() {
             Hotfix::execute(pull_request_payload.repository_full_name());

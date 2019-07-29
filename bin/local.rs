@@ -1,9 +1,9 @@
+use lendabot::command::Hotfix;
+use lendabot::github::payload::{IssueCommentEventPayload, PullRequestEventPayload};
+use lendabot::Command;
+use std::env;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
-use std::env;
-use lendabot::Command;
-use lendabot::github::payload::{IssueCommentEventPayload, PullRequestEventPayload};
-use lendabot::command::Hotfix;
 
 fn main() {
     let address = env::var("APP_ADDRESS").expect("APP_ADDRESS not set.");
@@ -31,13 +31,16 @@ fn request(mut stream: &TcpStream) -> (Event, String) {
 
     let raw_body = String::from_utf8_lossy(&buffer[0..number_of_characters]);
 
-    (raw_body.lines().nth(4).unwrap().trim().into(), raw_body.lines().skip(9).collect())
+    (
+        raw_body.lines().nth(4).unwrap().trim().into(),
+        raw_body.lines().skip(9).collect(),
+    )
 }
 
 fn ok(mut stream: TcpStream) {
     let response = "HTTP/1.1 200 OK\r\n\r\n";
 
-    stream.write(response.as_bytes()).unwrap();
+    stream.write_all(response.as_bytes()).unwrap();
     stream.flush().unwrap();
 }
 
@@ -63,12 +66,13 @@ impl Event {
         match self {
             Event::IssueComment => self.execute_issue_comment(request),
             Event::PullRequest => self.execute_pull_request(request),
-            Event::Noop => {},
+            Event::Noop => {}
         }
     }
 
     fn execute_issue_comment(&self, request: String) {
-        let issue_comment_payload: IssueCommentEventPayload = serde_json::from_str(request.trim()).unwrap();
+        let issue_comment_payload: IssueCommentEventPayload =
+            serde_json::from_str(request.trim()).unwrap();
 
         if issue_comment_payload.is_pull_request() {
             let command: Command = issue_comment_payload.comment_body().as_str().into();
@@ -77,7 +81,8 @@ impl Event {
     }
 
     fn execute_pull_request(&self, request: String) {
-        let pull_request_payload: PullRequestEventPayload = serde_json::from_str(request.trim()).unwrap();
+        let pull_request_payload: PullRequestEventPayload =
+            serde_json::from_str(request.trim()).unwrap();
 
         if pull_request_payload.is_merged() && pull_request_payload.is_hotfix() {
             Hotfix::execute(pull_request_payload.repository_full_name());

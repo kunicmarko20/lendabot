@@ -8,11 +8,9 @@ lazy_static! {
 pub(super) struct UpdateRelease;
 
 impl UpdateRelease {
-    pub fn execute(repository_full_name: &String, pull_request_number: &u64) {
-        let pull_request = GITHUB_CLIENT.pull_request_info(
-            repository_full_name,
-            pull_request_number,
-        );
+    pub fn execute(repository_full_name: &str, pull_request_number: u64) {
+        let pull_request =
+            GITHUB_CLIENT.pull_request_info(repository_full_name, pull_request_number);
 
         if !pull_request.is_release() {
             return;
@@ -20,10 +18,8 @@ impl UpdateRelease {
 
         let mut title = "🤖 Release".to_string();
 
-        let pull_request_commits = GITHUB_CLIENT.pull_request_commits(
-            repository_full_name,
-            pull_request_number,
-        );
+        let pull_request_commits =
+            GITHUB_CLIENT.pull_request_commits(repository_full_name, pull_request_number);
 
         for pull_request_commit in pull_request_commits {
             if let Some(captures) = REGEX.captures(&pull_request_commit.commit_message()) {
@@ -37,11 +33,9 @@ impl UpdateRelease {
             "title": title.as_str(),
         });
 
-        GITHUB_CLIENT.update_pull_request(
-            repository_full_name,
-            pull_request_number,
-            body.to_string(),
-        ).unwrap();
+        GITHUB_CLIENT
+            .update_pull_request(repository_full_name, pull_request_number, body.to_string())
+            .unwrap();
     }
 }
 

@@ -1,5 +1,5 @@
+use super::parts::{Comment, Issue, Repository};
 use regex::Regex;
-use super::parts::{Comment, Repository, Issue};
 
 lazy_static! {
     static ref REGEX: Regex = Regex::new(r"https://github.com/.+/.+/pull/.+").unwrap();
@@ -29,8 +29,7 @@ impl IssueCommentEventPayload {
         &self.issue.title
     }
 
-    pub fn comment_body(&self) -> &String
-    {
+    pub fn comment_body(&self) -> &String {
         &self.comment.body
     }
 }

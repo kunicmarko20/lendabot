@@ -1,6 +1,6 @@
+use super::UpdateRelease;
 use super::GITHUB_CLIENT;
 use crate::github::payload::IssueCommentEventPayload;
-use super::UpdateRelease;
 
 pub(super) struct Release;
 
@@ -20,7 +20,7 @@ impl Release {
 
         UpdateRelease::execute(
             issue_comment_payload.repository_full_name(),
-            pull_request.pull_request_number()
+            *pull_request.pull_request_number(),
         );
     }
 }
