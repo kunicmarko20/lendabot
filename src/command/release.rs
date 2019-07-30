@@ -5,6 +5,9 @@ pub(super) struct Release;
 
 impl Release {
     pub fn execute(repository_full_name: &str) {
+
+        //Needs a check around repository name
+
         let body = json!({
             "title": "🤖 Release",
             "head": "development",

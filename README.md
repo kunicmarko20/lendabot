@@ -1,10 +1,10 @@
 Lendabot
 ========
 
-Github bot that runs as AWS Lambda and will automate workflow.
+Github and Slack bot that runs on AWS Lambda and automates workflow.
 
-Commands
-========
+Github Commands
+===============
 
 All commands mentioned here should be executed as a comment to a Pull Request.
 
@@ -22,3 +22,8 @@ Works only as a comment on a release Pull Request.
 
 * `!back-merge` | `!bm` - Creates a `master` into `development` Pull Request. If Pull Request Event is enabled,
 Lendabot will create this Pull Request automatically.
+
+Slack Commands
+==============
+
+* `/release owner/repository` - Creates a `development` into `master` Pull Request.
