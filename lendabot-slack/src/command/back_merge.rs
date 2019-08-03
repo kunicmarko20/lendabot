@@ -1,10 +1,10 @@
-use super::GITHUB_CLIENT;
 use crate::payload::SlashCommandPayload;
+use lendabot::github::GithubClient;
 
 pub struct BackMerge;
 
 impl BackMerge {
-    pub fn execute(slash_command_payload: SlashCommandPayload) {
+    pub fn execute(github_client: GithubClient, slash_command_payload: SlashCommandPayload) {
         let body = json!({
             "title": "🤖 Back-merge",
             "head": "master",
@@ -12,6 +12,6 @@ impl BackMerge {
             "maintainer_can_modify": true,
         });
 
-        GITHUB_CLIENT.create_pull_request(slash_command_payload.text(), body.to_string());
+        github_client.create_pull_request(slash_command_payload.text(), body.to_string());
     }
 }

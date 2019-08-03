@@ -1,11 +1,11 @@
 use super::UpdateRelease;
-use super::GITHUB_CLIENT;
 use crate::payload::IssueCommentEventPayload;
+use lendabot::github::GithubClient;
 
 pub(super) struct Release;
 
 impl Release {
-    pub fn execute(issue_comment_payload: IssueCommentEventPayload) {
+    pub fn execute(github_client: GithubClient, issue_comment_payload: IssueCommentEventPayload) {
         let body = json!({
             "title": "🤖 Release",
             "head": "development",
@@ -13,11 +13,11 @@ impl Release {
             "maintainer_can_modify": true,
         });
 
-        GITHUB_CLIENT.create_pull_request(
+        github_client.create_pull_request(
             issue_comment_payload.repository_full_name(),
             body.to_string(),
         );
 
-        UpdateRelease::execute(issue_comment_payload);
+        UpdateRelease::execute(github_client, issue_comment_payload);
     }
 }

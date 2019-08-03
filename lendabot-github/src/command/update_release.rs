@@ -1,5 +1,5 @@
-use super::GITHUB_CLIENT;
 use crate::payload::IssueCommentEventPayload;
+use lendabot::github::GithubClient;
 use regex::Regex;
 
 lazy_static! {
@@ -9,8 +9,8 @@ lazy_static! {
 pub(super) struct UpdateRelease;
 
 impl UpdateRelease {
-    pub fn execute(issue_comment_payload: IssueCommentEventPayload) {
-        let pull_request = GITHUB_CLIENT.pull_request_info(
+    pub fn execute(github_client: GithubClient, issue_comment_payload: IssueCommentEventPayload) {
+        let pull_request = github_client.pull_request_info(
             issue_comment_payload.repository_full_name(),
             issue_comment_payload.issue_number(),
         );
@@ -21,7 +21,7 @@ impl UpdateRelease {
 
         let mut title = "🤖 Release".to_string();
 
-        let pull_request_commits = GITHUB_CLIENT.pull_request_commits(
+        let pull_request_commits = github_client.pull_request_commits(
             issue_comment_payload.repository_full_name(),
             issue_comment_payload.issue_number(),
         );
@@ -38,7 +38,7 @@ impl UpdateRelease {
             "title": title.as_str(),
         });
 
-        GITHUB_CLIENT
+        github_client
             .update_pull_request(
                 issue_comment_payload.repository_full_name(),
                 issue_comment_payload.issue_number(),

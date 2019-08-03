@@ -1,3 +1,4 @@
+use lendabot::github::GithubClient;
 use lendabot_github::command::BackMerge;
 use lendabot_github::payload::{IssueCommentEventPayload, PullRequestEventPayload};
 use lendabot_github::Command;
@@ -76,7 +77,7 @@ impl Event {
 
         if issue_comment_payload.is_pull_request() {
             let command: Command = issue_comment_payload.comment_body().into();
-            command.execute(issue_comment_payload);
+            command.execute(GithubClient::default(), issue_comment_payload);
         }
     }
 
@@ -85,7 +86,10 @@ impl Event {
             serde_json::from_str(request.trim()).unwrap();
 
         if pull_request_payload.is_merged() && pull_request_payload.is_hotfix() {
-            BackMerge::execute(pull_request_payload.repository_full_name());
+            BackMerge::execute(
+                GithubClient::default(),
+                pull_request_payload.repository_full_name(),
+            );
         }
     }
 }

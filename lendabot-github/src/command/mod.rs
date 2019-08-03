@@ -14,10 +14,6 @@ pub(in crate::command) use self::update_release::UpdateRelease;
 use crate::payload::IssueCommentEventPayload;
 use lendabot::github::GithubClient;
 
-lazy_static! {
-    static ref GITHUB_CLIENT: GithubClient = GithubClient::default();
-}
-
 #[derive(Debug)]
 pub enum Command {
     BackMerge,
@@ -42,13 +38,19 @@ impl From<&str> for Command {
 }
 
 impl Command {
-    pub fn execute(&self, issue_comment_payload: IssueCommentEventPayload) {
+    pub fn execute(
+        &self,
+        github_client: GithubClient,
+        issue_comment_payload: IssueCommentEventPayload,
+    ) {
         match self {
-            Command::BackMerge => BackMerge::execute(issue_comment_payload.repository_full_name()),
-            Command::Release => Release::execute(issue_comment_payload),
-            Command::UpdateRelease => UpdateRelease::execute(issue_comment_payload),
-            Command::Ping => Ping::execute(issue_comment_payload),
-            Command::Merge => Merge::execute(issue_comment_payload),
+            Command::BackMerge => {
+                BackMerge::execute(github_client, issue_comment_payload.repository_full_name())
+            }
+            Command::Release => Release::execute(github_client, issue_comment_payload),
+            Command::UpdateRelease => UpdateRelease::execute(github_client, issue_comment_payload),
+            Command::Ping => Ping::execute(github_client, issue_comment_payload),
+            Command::Merge => Merge::execute(github_client, issue_comment_payload),
             Command::Noop => {}
         }
     }

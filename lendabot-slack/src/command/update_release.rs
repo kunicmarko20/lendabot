@@ -1,5 +1,5 @@
-use super::GITHUB_CLIENT;
 use regex::Regex;
+use lendabot::github::GithubClient;
 
 lazy_static! {
     static ref REGEX: Regex = Regex::new(r"\[(?P<ticket>(CARD|LOAN)-\d+)\].*").unwrap();
@@ -8,9 +8,13 @@ lazy_static! {
 pub(super) struct UpdateRelease;
 
 impl UpdateRelease {
-    pub fn execute(repository_full_name: &str, pull_request_number: u64) {
+    pub fn execute(
+        github_client: GithubClient,
+        repository_full_name: &str,
+        pull_request_number: u64,
+    ) {
         let pull_request =
-            GITHUB_CLIENT.pull_request_info(repository_full_name, pull_request_number);
+            github_client.pull_request_info(repository_full_name, pull_request_number);
 
         if !pull_request.is_release() {
             return;
@@ -19,7 +23,7 @@ impl UpdateRelease {
         let mut title = "🤖 Release".to_string();
 
         let pull_request_commits =
-            GITHUB_CLIENT.pull_request_commits(repository_full_name, pull_request_number);
+            github_client.pull_request_commits(repository_full_name, pull_request_number);
 
         for pull_request_commit in pull_request_commits {
             if let Some(captures) = REGEX.captures(&pull_request_commit.commit_message()) {
@@ -33,7 +37,7 @@ impl UpdateRelease {
             "title": title.as_str(),
         });
 
-        GITHUB_CLIENT
+        github_client
             .update_pull_request(repository_full_name, pull_request_number, body.to_string())
             .unwrap();
     }
