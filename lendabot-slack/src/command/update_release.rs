@@ -33,6 +33,10 @@ impl UpdateRelease {
             }
         }
 
+        if pull_request.title() == title {
+            return;
+        }
+
         let body = json!({
             "title": title.as_str(),
         });
