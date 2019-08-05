@@ -1,9 +1,9 @@
+use lendabot::github::GithubClient;
 use lendabot_slack::payload::SlashCommandPayload;
 use lendabot_slack::Command;
 use std::env;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
-use lendabot::github::GithubClient;
 
 fn main() {
     let address = env::var("APP_ADDRESS").expect("APP_ADDRESS not set.");
@@ -19,8 +19,9 @@ fn main() {
 fn handle_connection(stream: TcpStream) {
     let request = request(&stream);
 
-    let slash_command_payload: SlashCommandPayload =
-        serde_urlencoded::from_bytes(request.trim().as_ref()).unwrap();
+    let slash_command_payload = SlashCommandPayload::from_request_body(
+        serde_urlencoded::from_bytes(request.trim().as_ref()).unwrap(),
+    );
 
     let command: Command = slash_command_payload.command().into();
     command.execute(GithubClient::default(), slash_command_payload);
@@ -35,7 +36,7 @@ fn request(mut stream: &TcpStream) -> String {
 
     let raw_body = String::from_utf8_lossy(&buffer[0..number_of_characters]);
 
-    raw_body.lines().skip(10).collect()
+    raw_body.lines().skip(11).collect()
 }
 
 fn ok(mut stream: TcpStream) {

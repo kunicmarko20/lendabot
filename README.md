@@ -26,4 +26,5 @@ Lendabot will create this Pull Request automatically.
 Slack Commands
 ==============
 
-* `/release owner/repository` - Creates a `development` into `master` Pull Request.
+* `/lendabot release owner/repository` - Creates a `development` into `master` Pull Request.
+* `/lendabot back-merge owner/repository` - Creates a `master` into `development` Pull Request.

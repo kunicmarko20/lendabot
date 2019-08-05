@@ -18,8 +18,8 @@ pub enum Command {
 impl From<&str> for Command {
     fn from(string: &str) -> Self {
         match string {
-            "/release" => Command::Release,
-            "/back-merge" => Command::BackMerge,
+            "release" | "r" => Command::Release,
+            "back-merge" | "bm" => Command::BackMerge,
             _ => Command::Noop,
         }
     }

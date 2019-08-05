@@ -1,5 +1,5 @@
-use regex::Regex;
 use lendabot::github::GithubClient;
+use regex::Regex;
 
 lazy_static! {
     static ref REGEX: Regex = Regex::new(r"\[(?P<ticket>(CARD|LOAN)-\d+)\].*").unwrap();

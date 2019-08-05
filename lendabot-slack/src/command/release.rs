@@ -16,12 +16,14 @@ impl Release {
             "maintainer_can_modify": true,
         });
 
-        let pull_request =
-            github_client.create_pull_request(slash_command_payload.text(), body.to_string());
+        let pull_request = github_client.create_pull_request(
+            slash_command_payload.repository_full_name(),
+            body.to_string(),
+        );
 
         UpdateRelease::execute(
             github_client,
-            slash_command_payload.text(),
+            slash_command_payload.repository_full_name(),
             pull_request.pull_request_number(),
         );
     }

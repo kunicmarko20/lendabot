@@ -11,8 +11,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 pub fn run(request: Request, _: Context) -> Result<Response<Body>, HandlerError> {
-    let slash_command_payload: SlashCommandPayload =
-        serde_urlencoded::from_bytes(request.body().as_ref()).unwrap();
+    let slash_command_payload = SlashCommandPayload::from_request_body(
+        serde_urlencoded::from_bytes(request.body().as_ref()).unwrap(),
+    );
 
     let command: Command = slash_command_payload.command().into();
     command.execute(GithubClient::default(), slash_command_payload);
