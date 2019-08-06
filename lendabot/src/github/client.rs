@@ -5,8 +5,9 @@ use reqwest::{
     Client, Response,
 };
 use std::env;
+use crate::github::payload::ErrorPayload;
 
-type Result = reqwest::Result<Response>;
+type ResultReqwest = reqwest::Result<Response>;
 
 lazy_static! {
     static ref TOKEN: String =
@@ -33,17 +34,25 @@ impl Default for GithubClient {
 }
 
 impl GithubClient {
-    pub fn create_pull_request(&self, repository_name: &str, body: String) -> PullRequestPayload {
-        self.client
+    pub fn create_pull_request(&self, repository_name: &str, body: String) -> Result<PullRequestPayload, ErrorPayload> {
+        let mut response = self.client
             .post(&format!(
                 "https://api.github.com/repos/{}/pulls",
                 repository_name
             ))
             .body(body)
             .send()
-            .unwrap()
+            .unwrap();
+
+        if !response.status().is_success() {
+            return Err(response
+                .json()
+                .unwrap());
+        }
+
+        Ok(response
             .json()
-            .unwrap()
+            .unwrap())
     }
 
     pub fn update_pull_request(
@@ -51,7 +60,7 @@ impl GithubClient {
         repository_name: &str,
         pull_request_number: u64,
         body: String,
-    ) -> Result {
+    ) -> ResultReqwest {
         self.client
             .patch(&format!(
                 "https://api.github.com/repos/{}/pulls/{}",
@@ -61,7 +70,7 @@ impl GithubClient {
             .send()
     }
 
-    pub fn create_comment(&self, repository_name: &str, issue_number: u64, body: String) -> Result {
+    pub fn create_comment(&self, repository_name: &str, issue_number: u64, body: String) -> ResultReqwest {
         self.client
             .post(&format!(
                 "https://api.github.com/repos/{}/issues/{}/comments",
@@ -76,7 +85,7 @@ impl GithubClient {
         repository_name: &str,
         pull_request_number: u64,
         body: String,
-    ) -> Result {
+    ) -> ResultReqwest {
         self.client
             .put(&format!(
                 "https://api.github.com/repos/{}/pulls/{}/merge",

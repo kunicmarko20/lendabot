@@ -1,12 +1,16 @@
 use crate::payload::SlashCommandPayload;
 
 use super::UpdateRelease;
+use crate::command::CommandResult;
 use lendabot::github::GithubClient;
 
 pub(super) struct Release;
 
 impl Release {
-    pub fn execute(github_client: GithubClient, slash_command_payload: SlashCommandPayload) {
+    pub fn execute(
+        github_client: GithubClient,
+        slash_command_payload: SlashCommandPayload,
+    ) -> CommandResult {
         //Needs a check around repository name
 
         let body = json!({
@@ -24,7 +28,9 @@ impl Release {
         UpdateRelease::execute(
             github_client,
             slash_command_payload.repository_full_name(),
-            pull_request.pull_request_number(),
-        );
+            pull_request
+                .map_err(|error_payload| error_payload.to_string())?
+                .pull_request_number(),
+        )
     }
 }

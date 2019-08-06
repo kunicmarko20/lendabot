@@ -16,7 +16,7 @@ impl Release {
         github_client.create_pull_request(
             issue_comment_payload.repository_full_name(),
             body.to_string(),
-        );
+        ).unwrap();
 
         UpdateRelease::execute(github_client, issue_comment_payload);
     }

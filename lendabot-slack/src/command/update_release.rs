@@ -1,3 +1,4 @@
+use crate::command::CommandResult;
 use lendabot::github::GithubClient;
 use regex::Regex;
 
@@ -12,12 +13,12 @@ impl UpdateRelease {
         github_client: GithubClient,
         repository_full_name: &str,
         pull_request_number: u64,
-    ) {
+    ) -> CommandResult {
         let pull_request =
             github_client.pull_request_info(repository_full_name, pull_request_number);
 
         if !pull_request.is_release() {
-            return;
+            return Err("Not a Release Pull Request.".into());
         }
 
         let mut title = "🤖 Release".to_string();
@@ -34,7 +35,7 @@ impl UpdateRelease {
         }
 
         if pull_request.title() == title {
-            return;
+            return Err("No title altering commits founds.".into());
         }
 
         let body = json!({
@@ -44,6 +45,8 @@ impl UpdateRelease {
         github_client
             .update_pull_request(repository_full_name, pull_request_number, body.to_string())
             .unwrap();
+
+        Ok(())
     }
 }
 

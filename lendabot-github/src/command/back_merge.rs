@@ -11,6 +11,9 @@ impl BackMerge {
             "maintainer_can_modify": true,
         });
 
-        github_client.create_pull_request(repository_full_name, body.to_string());
+        github_client.create_pull_request(
+            repository_full_name,
+            body.to_string()
+        ).unwrap();
     }
 }

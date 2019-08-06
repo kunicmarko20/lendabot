@@ -24,12 +24,17 @@ fn handle_connection(stream: TcpStream) {
     );
 
     if !slash_command_payload.has_permissions() {
-        err(stream);
+        err(stream, "You don't have permission to execute that.".into());
         return;
     }
 
     let command: Command = slash_command_payload.command().into();
-    command.execute(GithubClient::default(), slash_command_payload);
+    let response = command.execute(GithubClient::default(), slash_command_payload);
+
+    if let Err(message) = response {
+        err(stream, message);
+        return;
+    }
 
     ok(stream)
 }
@@ -51,8 +56,8 @@ fn ok(mut stream: TcpStream) {
     stream.flush().unwrap();
 }
 
-fn err(mut stream: TcpStream) {
-    let response = "HTTP/1.1 200 OK\r\n\r\n You don't have permission to execute that.";
+fn err(mut stream: TcpStream, message: String) {
+    let response = "HTTP/1.1 200 OK\r\n\r\n".to_owned() + &message;
 
     stream.write_all(response.as_bytes()).unwrap();
     stream.flush().unwrap();
