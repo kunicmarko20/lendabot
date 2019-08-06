@@ -15,6 +15,13 @@ pub fn run(request: Request, _: Context) -> Result<Response<Body>, HandlerError>
         serde_urlencoded::from_bytes(request.body().as_ref()).unwrap(),
     );
 
+    if !slash_command_payload.has_permissions() {
+        return Ok(Response::builder()
+            .status(200)
+            .body("You don't have permission to execute that.".into())
+            .expect("Error while creating response."));
+    }
+
     let command: Command = slash_command_payload.command().into();
     command.execute(GithubClient::default(), slash_command_payload);
 

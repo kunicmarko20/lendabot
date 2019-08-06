@@ -23,6 +23,11 @@ fn handle_connection(stream: TcpStream) {
         serde_urlencoded::from_bytes(request.trim().as_ref()).unwrap(),
     );
 
+    if !slash_command_payload.has_permissions() {
+        err(stream);
+        return;
+    }
+
     let command: Command = slash_command_payload.command().into();
     command.execute(GithubClient::default(), slash_command_payload);
 
@@ -41,6 +46,13 @@ fn request(mut stream: &TcpStream) -> String {
 
 fn ok(mut stream: TcpStream) {
     let response = "HTTP/1.1 200 OK\r\n\r\n";
+
+    stream.write_all(response.as_bytes()).unwrap();
+    stream.flush().unwrap();
+}
+
+fn err(mut stream: TcpStream) {
+    let response = "HTTP/1.1 200 OK\r\n\r\n You don't have permission to execute that.";
 
     stream.write_all(response.as_bytes()).unwrap();
     stream.flush().unwrap();
